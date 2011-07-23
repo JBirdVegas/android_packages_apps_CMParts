@@ -214,25 +214,20 @@ public class PerformanceSettingsActivity extends PreferenceActivity implements P
     }
 
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if (preference == mHeapsizePref) {
-            if (newValue != null) {
+        if (newValue != null) {
+            if (preference == mHeapsizePref) {
                 SystemProperties.set(HEAPSIZE_PERSIST_PROP, (String)newValue);
                 return true;
-            }
         }
 
-        if (preference == mCompcachePref) {
-            if (newValue != null) {
+            if (preference == mCompcachePref) {
                 SystemProperties.set(COMPCACHE_PERSIST_PROP, (String)newValue);
                 return true;
-	    }
         }
 
-        if (preference == mWifiScanPref) {
-            if (newValue != null) {
+            if (preference == mWifiScanPref) {
                 SystemProperties.set(WIFI_SCAN_PERSIST_PROP, (String)newValue);
                 return true;
-            }
         }
         return false;
     }
