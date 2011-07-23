@@ -231,6 +231,8 @@ public class PerformanceSettingsActivity extends PreferenceActivity implements P
         }
         return false;
         }
+
+    return false;
     }
 
     /**
