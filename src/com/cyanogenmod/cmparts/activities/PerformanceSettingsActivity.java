@@ -31,6 +31,11 @@ import android.preference.PreferenceScreen;
 import android.provider.Settings;
 
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * Performance Settings
@@ -236,8 +241,8 @@ public class PerformanceSettingsActivity extends PreferenceActivity implements P
 
                     while ((line = in.readLine()) != null) {
                         params = line.split("="); //split the line
-                    if (params[0].equalsIgnoreCase("ro.sf.lcd_density")) { //find the line we want to replace
-                        out.println(params[0] + "=" + (String)persist.wifi_scan_interval); //output the new line
+                    if (params[0].equalsIgnoreCase("wifi.supplicant_scan_interval")) { //find the line we want to replace
+                        out.println(params[0] + "=" + "persist.wifi_scan_interval"); //output the new line
                     } else {
                         out.println(line); //if it's not the line, just output it as-is
                            }
