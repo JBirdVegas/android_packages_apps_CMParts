@@ -227,11 +227,30 @@ public class PerformanceSettingsActivity extends PreferenceActivity implements P
 
             if (preference == mWifiScanPref) {
                 SystemProperties.set(WIFI_SCAN_PERSIST_PROP, (String)newValue);
+                try {
+                    BufferedReader in = new BufferedReader(new FileReader("/system/build.prop"));
+                    PrintWriter out = new PrintWriter(new File("/system/build.prop"));
+
+                    String line; //a line in the file
+                    String params[]; //holds the line number and value
+
+                    while ((line = in.readLine()) != null) {
+                        params = line.split("="); //split the line
+                    if (params[0].equalsIgnoreCase("ro.sf.lcd_density")) { //find the line we want to replace
+                        out.println(params[0] + "=" + (String)persist.wifi_scan_interval); //output the new line
+                    } else {
+                        out.println(line); //if it's not the line, just output it as-is
+                           }
+                    }
+
+                    in.close();
+                    out.flush();
+                    out.close();
+                }catch(Exception e) { e.printStackTrace(); }
                 return true;
         }
         return false;
         }
-
     return false;
     }
 
