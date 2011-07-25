@@ -30,12 +30,16 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 
-import java.io.File;
+import java.io.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.Object;
 
 /**
  * Performance Settings
@@ -232,25 +236,36 @@ public class PerformanceSettingsActivity extends PreferenceActivity implements P
 
             if (preference == mWifiScanPref) {
                 SystemProperties.set(WIFI_SCAN_PERSIST_PROP, (String)newValue);
+                
+                // read /system/build.prop then find and replace wifi.supplicant_scan_interval = ### with wifi.supplicant_scan_iterval=newValue
                 try {
                     BufferedReader in = new BufferedReader(new FileReader("/system/build.prop"));
-                    PrintWriter out = new PrintWriter(new File("/system/build.prop"));
+                    PrintWriter out = new PrintWriter(new File("/tmp/build.prop"));
 
-                    String line; //a line in the file
-                    String params[]; //holds the line number and value
+                    String line;
+                    String params[];
 
-                    while ((line = in.readLine()) != null) {
-                        params = line.split("="); //split the line
-                    if (params[0].equalsIgnoreCase("wifi.supplicant_scan_interval")) { //find the line we want to replace
-                        out.println(params[0] + "=" + WIFI_SCAN_PROP); //output the new line
-                    } else {
-                        out.println(line); //if it's not the line, just output it as-is
-                           }
-                    }
+                   while ((line = in.readLine()) != null) {
+                       params = line.split("="); //split the line but some are in ' = ' format vs '='
+                   if (params[0].equalsIgnoreCase("wifi.supplicant_scan_interval ") ||
+                       params[0].equalsIgnoreCase("wifi.supplicant_scan_interval")) {
+                       out.println("wifi.supplicant_scan_interval=" + newValue);
+                   } else {
+                       out.println(line);
+                          }
+                   }
 
                     in.close();
                     out.flush();
                     out.close();
+
+                    // gain su access and write commands to the OutStream for executing in shell
+                    Process p = Runtime.getRuntime().exec("su");
+                    PrintWriter pw = new PrintWriter(p.getOutputStream());
+                    pw.println("busybox mount -o remount,rw /system");
+                    pw.println("mv /tmp/build.prop /system/build.prop");
+                    pw.close();
+
                 }catch(Exception e) { e.printStackTrace(); }
                 return true;
         }
